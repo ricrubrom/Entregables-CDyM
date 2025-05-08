@@ -3,7 +3,7 @@
  * @brief Implementación del manejo de teclado matricial 4x4.
  *
  * Este módulo permite inicializar el teclado y escanear teclas presionadas,
- * detectando nuevos eventos mediante flancos de bajada.
+ * detectando nuevos eventos mediante flancos de subida.
  */
 
 #include "lcd.h"
@@ -37,7 +37,7 @@ void KEYPAD_init(void)
 /**
  * @brief Escanea el teclado matricial en busca de teclas presionadas.
  *
- * Detecta una nueva tecla presionada mediante flanco de bajada. Retorna la tecla por referencia.
+ * Detecta una nueva tecla presionada mediante flanco de subida. Retorna la tecla por referencia.
  *
  * @param key Puntero para almacenar el carácter de la tecla detectada.
  * @return 1 si se detectó una nueva tecla presionada, 0 en caso contrario.
@@ -95,7 +95,7 @@ uint8_t KEYPAD_scan(uint8_t *key)
     }
   }
 
-  // Detectar flanco de bajada (nueva tecla diferente a la anterior)
+  // Detectar flanco de subida (nueva tecla diferente a la anterior)
   if (current_key != 0xFF && current_key != last_key)
   {
     *key = current_key;
