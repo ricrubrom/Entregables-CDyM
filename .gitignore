@@ -1,0 +1,29 @@
+*.exe
+*.out
+build
+.vscode
+*.workspace
+*.xml
+*.zip
+
+# Build artifacts
+*.o
+*.d
+*.elf
+*.hex
+*.eep
+*.map
+*.srec
+*.lss
+Makefile
+*.mk
+
+# Backup and temporary files
+*.workspace
+*.atsuo
+Project Backups
+
+# IDE-specific files
+.vs/
+*.cproj
+*.atsln
