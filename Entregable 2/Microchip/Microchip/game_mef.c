@@ -39,38 +39,35 @@ const uint8_t *dicc[] = {
  */
 void game_mef(void)
 {
-    if (temporization_flag)
+    switch (gameState)
     {
-        switch (gameState)
-        {
-        case START:
-            handle_start_state();
-            break;
+    case START:
+        handle_start_state();
+        break;
 
-        case SHOW_PASSWORD:
-            handle_show_password_state();
-            break;
+    case SHOW_PASSWORD:
+        handle_show_password_state();
+        break;
 
-        case GAME:
-            handle_game_state();
-            break;
+    case GAME:
+        handle_game_state();
+        break;
 
-        case HIT:
-            handle_hit_state();
-            break;
+    case HIT:
+        handle_hit_state();
+        break;
 
-        case MISS:
-            handle_miss_state();
-            break;
+    case MISS:
+        handle_miss_state();
+        break;
 
-        case WIN:
-            handle_win_state();
-            break;
+    case WIN:
+        handle_win_state();
+        break;
 
-        case LOSE:
-            handle_lose_state();
-            break;
-        }
+    case LOSE:
+        handle_lose_state();
+        break;
     }
 }
 

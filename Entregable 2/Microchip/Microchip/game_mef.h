@@ -26,9 +26,6 @@ extern volatile uint8_t gameTick;
 /// Segundos contados durante el juego activo
 extern volatile uint8_t gameSecond;
 
-/// Bandera de temporización, cambia en cada interrupción
-extern volatile uint8_t temporization_flag;
-
 /**
  * @brief Ejecuta un paso de la máquina de estados del juego.
  *

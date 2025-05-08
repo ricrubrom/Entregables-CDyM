@@ -3,7 +3,7 @@
  * @brief Programa principal del juego de contraseñas con teclado y LCD.
  *
  * Este sistema utiliza un teclado matricial 4x4, una pantalla LCD, temporización por interrupciones
- * y una máquina de estados finitos (MEF) para controlar el flujo del juego.
+ * y una máquina de estados finitos (MEF) para controlar el flujo del juego de adivinar la contraseña.
  * El juego inicia al presionar el botón '*'.
  */
 
@@ -17,6 +17,8 @@
 #include "game_mef.h"
 #include "game_utils.h"
 
+extern volatile uint8_t temporization_flag; ///< Bandera de temporización para el juego, cambia cada interrupcion
+
 /**
  * @brief Función principal del programa.
  *
@@ -25,6 +27,7 @@
  *
  * @return Esta función nunca retorna.
  */
+
 int main(void)
 {
     LCD_Init();    ///< Inicializa pantalla LCD
@@ -40,7 +43,10 @@ int main(void)
 
     while (1)
     {
-        game_mef(); ///< Ejecuta la máquina de estados del juego
+        if (temporization_flag)
+        {
+            game_mef(); ///< Ejecuta la máquina de estados del juego
+        }
     }
 
     return 0; ///< Esta línea nunca se alcanza, pero es buena práctica incluirla.
