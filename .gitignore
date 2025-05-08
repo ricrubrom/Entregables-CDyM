@@ -3,7 +3,7 @@
 build
 .vscode
 *.workspace
-*.xml
+# *.xml
 *.zip
 
 # Build artifacts
@@ -28,8 +28,9 @@ Makefile
 *.workspace
 *.atsuo
 Project Backups
+Debug
 
 # IDE-specific files
 .vs/
-*.cproj
-*.atsln
+# *.cproj
+# *.atsln
