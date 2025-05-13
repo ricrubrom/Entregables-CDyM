@@ -9,9 +9,9 @@
 #include <stdio.h>
 #include <string.h>
 #include "lcd.h"
-#include "game_utils.h"
+#include "timer.h"
+#include "game_mef.h"
 
-volatile GameState gameState = START;
 volatile uint8_t tick = 0;
 volatile uint8_t second = 0;
 volatile uint8_t gameTick = 0;

@@ -15,7 +15,7 @@
 #include "lcd.h"
 #include "keypad.h"
 #include "game_mef.h"
-#include "game_utils.h"
+#include "timer.h"
 
 extern volatile uint8_t temporization_flag; ///< Bandera de temporización para el juego, cambia cada interrupcion
 

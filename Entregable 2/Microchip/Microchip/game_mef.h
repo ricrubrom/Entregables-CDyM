@@ -1,30 +1,32 @@
 /**
  * @file game_mef.h
- * @brief Declaraciones de funciones relacionadas con la máquina de estados del juego.
+ * @brief Declaraciones de funciones relacionadas con la máquina de estados del juego y declaracion del enum que contiene todos los estados posibles de la MEF.
  *
  * Este archivo contiene las declaraciones de todas las funciones que manejan
  * los diferentes estados del juego de ingreso de contraseñas.
  */
 
-#include "game_utils.h"
+#include "timer.h"
 
 #ifndef GAME_MEF_H
 #define GAME_MEF_H
 
+/**
+ * @brief Estados posibles del juego.
+ */
+typedef enum
+{
+    START,         ///< Esperando inicio (*)
+    SHOW_PASSWORD, ///< Mostrando la contraseña
+    GAME,          ///< Juego en progreso
+    HIT,           ///< Acierto en un carácter
+    MISS,          ///< Error en un carácter
+    WIN,           ///< El jugador ganó
+    LOSE           ///< El jugador perdió
+} GameState;
+
 /// Estado actual del juego
 extern volatile GameState gameState;
-
-/// Tick general (para mostrar la contraseña, ganar o perder)
-extern volatile uint8_t tick;
-
-/// Segundos contados mientras se muestra la contraseña o tras finalizar el juego
-extern volatile uint8_t second;
-
-/// Tick durante el juego activo
-extern volatile uint8_t gameTick;
-
-/// Segundos contados durante el juego activo
-extern volatile uint8_t gameSecond;
 
 /**
  * @brief Ejecuta un paso de la máquina de estados del juego.

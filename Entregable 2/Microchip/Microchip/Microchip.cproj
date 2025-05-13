@@ -126,12 +126,6 @@
     <Compile Include="game_mef.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="game_utils.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="game_utils.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="keypad.c">
       <SubType>compile</SubType>
     </Compile>
@@ -145,6 +139,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="timer.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="timer.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>

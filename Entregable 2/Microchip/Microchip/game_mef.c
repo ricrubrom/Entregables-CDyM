@@ -15,7 +15,9 @@
 #include "lcd.h"
 #include "keypad.h"
 #include "game_mef.h"
-#include "game_utils.h"
+#include "timer.h"
+
+volatile GameState gameState = START;
 
 uint8_t keyPressed = -1;
 uint8_t *password = NULL;
