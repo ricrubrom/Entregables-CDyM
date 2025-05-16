@@ -10,7 +10,6 @@
 #include <string.h>
 #include "lcd.h"
 #include "timer.h"
-#include "game_mef.h"
 
 volatile uint8_t tick = 0;
 volatile uint8_t second = 0;

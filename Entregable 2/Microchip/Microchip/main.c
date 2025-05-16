@@ -46,7 +46,7 @@ int main(void)
         if (temporization_flag)
         {
             game_mef(); ///< Ejecuta la máquina de estados del juego
-			temporization_flag=0;
+            temporization_flag = 0;
         }
     }
 
