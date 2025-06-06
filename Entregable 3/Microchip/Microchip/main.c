@@ -103,23 +103,6 @@ void manage_tx_buffer()
 	}
 }
 
-void UART_SendString_IT(char *str)
-{
-	strncpy((char *)tx_buffer, str, BUFFER_SIZE - 3);
-	tx_buffer[BUFFER_SIZE - 3] = '\0';
-
-	tx_index = 0;
-	enviando = 1;
-
-	UCSR0B |= (1 << TXCIE0);
-	SerialPort_Send_Data(tx_buffer[tx_index]);
-}
-
-ISR(USART_TX_vect)
-{
-	new_char_sent = true; // Indicar que se ha enviado un nuevo carácter
-}
-
 int main(void)
 {
 	// i2c_init();
@@ -134,6 +117,7 @@ int main(void)
 	SerialPort_TX_Enable();																						// Habilitar transmisor
 	SerialPort_RX_Enable();																						// Habilitar receptor
 	SerialPort_RX_Interrupt_Enable();																	// Habilitar interrupción de recepción
+	// No habilitamos el interrupcion del tx????
 	SerialPort_Send_String("Bienvenidos a mi canal de youtube.\r\n"); // Envío el mensaje de Bienvenida
 	sei();																														// habilitar interrupciones globales
 

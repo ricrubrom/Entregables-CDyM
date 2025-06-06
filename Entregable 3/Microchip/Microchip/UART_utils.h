@@ -41,6 +41,7 @@ void SerialPort_Send_Data(char);
 void SerialPort_Send_String(char *);
 void SerialPort_Send_uint8_t(uint8_t);
 void SerialPort_send_int16_t(int val, unsigned int field_length);
+void UART_SendString_IT(char *str);
 
 // Recepcion
 void SerialPort_Wait_Until_New_Data(void); // Pooling - Bloqueante, puede durar indefinidamente!

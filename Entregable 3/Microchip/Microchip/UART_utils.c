@@ -15,6 +15,22 @@ ISR(USART_RX_vect)
   new_char_recv = true; // Indicar que hay un nuevo carácter recibido
 }
 
+ISR(USART_TX_vect)
+{
+  new_char_sent = true; // Indicar que se ha enviado un nuevo carácter
+}
+
+void UART_SendString_IT(char *str)
+{
+  strncpy((char *)tx_buffer, str, BUFFER_SIZE - 3);
+  tx_buffer[BUFFER_SIZE - 3] = '\0';
+
+  tx_index = 0;
+  enviando = 1;
+
+  UCSR0B |= (1 << TXCIE0);
+  SerialPort_Send_Data(tx_buffer[tx_index]);
+}
 // Inicialización de Puerto Serie
 
 void SerialPort_Init(uint8_t config)
