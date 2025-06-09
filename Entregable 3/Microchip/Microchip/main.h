@@ -14,4 +14,16 @@ typedef enum
   true
 } bool;
 
+typedef enum
+{
+  DAY,
+  MONTH,
+  YEAR,
+  HOUR,
+  MIN,
+  SEC,
+} RTC_Field;
+
+#define BUFFER_SIZE 64
+
 #endif /* MAIN_H_ */

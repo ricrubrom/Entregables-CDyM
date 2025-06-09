@@ -40,13 +40,8 @@ typedef struct
 
 #define RTC_DaysRegAddress 0x04 // Meses y Anios en celdas siguientes, no es necesario declararlas porque al escribir se mueven solas
 
-#define RTC_Alarm1RegAddress 0x07
-
-#define RTC_Alarm1InterruptEnable 0b00000101
-
 void RTC_Init();
 void RTC_GetTime(RTC_t *rtc);
 void RTC_SetTime(RTC_t *rtc);
-void RTC_SetAlarm(RTC_t rtc);
 
 #endif /* RTC_UTILS_H_ */

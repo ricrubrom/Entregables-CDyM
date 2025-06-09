@@ -11,7 +11,6 @@
 
 ISR(USART_RX_vect)
 {
-  c_recv = UDR0;
   new_char_recv = true; // Indicar que hay un nuevo carácter recibido
 }
 

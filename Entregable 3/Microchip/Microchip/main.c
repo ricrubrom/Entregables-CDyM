@@ -14,45 +14,34 @@
 #include <string.h>
 
 #define BR9600 (0x67)
-#define BUFFER_SIZE 64
 
+// RX (Recepción)
 volatile char rx_buffer[BUFFER_SIZE];
 volatile uint8_t rx_index = 0;
-volatile bool nueva_cadena = false;
 volatile char c_recv;
 volatile bool new_char_recv = false;
+volatile bool nueva_cadena = false;
+
+// TX (Transmisión)
 volatile char tx_buffer[BUFFER_SIZE];
 volatile uint8_t tx_index = 0;
-volatile uint8_t enviando = 0;
 volatile char c_sent;
 volatile bool new_char_sent = false;
+volatile uint8_t enviando = 0;
+
+// Flags y estados generales
 volatile bool alarm = false;
 volatile bool powered = false;
 
-void manage_alarm()
-{
-	// Limpiar bandera A1F para futuras alarmas usando tus funciones I2C
-	I2C_start();
-	I2C_write(RTC_WriteMode);				 // Dirección de escritura RTC
-	I2C_write(RTC_StatusRegAddress); // Registro de estado
-	I2C_stop();
+// RTC
+volatile RTC_t time;
+volatile RTC_t alarm_time;
 
-	I2C_start();
-	I2C_write(RTC_ReadMode); // Dirección de lectura RTC
-	uint8_t status = I2C_read(true);
-	I2C_stop();
-
-	status &= ~0x01; // Limpiar A1F
-
-	I2C_start();
-	I2C_write(RTC_WriteMode);
-	I2C_write(RTC_StatusRegAddress);
-	I2C_write(status);
-	I2C_stop();
-}
+volatile RTC_Field current_read = DAY;
 
 void save_char()
 {
+	c_recv = UDR0;
 	if (c_recv == '\b' || c_recv == 0x7F) // Si se recibe un carácter de retroceso
 	{
 		if (rx_index > 0) // Evitar que el índice sea negativo
@@ -90,15 +79,73 @@ void manage_new_string()
 	}
 	else if (strcmp(rx_buffer, "set_alarm") == 0 || strcmp(rx_buffer, "SET_ALARM") == 0)
 	{
-		RTC_t rtc;
-		RTC_SetAlarm(rtc);
-		UART_SendString_IT("Comando 'set_alarm' recibido.");
+		for (current_read = HOUR; current_read <= SEC; current_read++)
+		{
+			while (!nueva_cadena)
+			{
+				if (new_char_recv)
+				{
+					new_char_recv = false;
+					save_char();
+				}
+			}
+			nueva_cadena = false;
+			switch (current_read)
+			{
+			case HOUR:
+				alarm_time.hour = atoi(rx_buffer);
+				break;
+			case MIN:
+				alarm_time.min = atoi(rx_buffer);
+				break;
+			case SEC:
+				alarm_time.sec = atoi(rx_buffer);
+				break;
+			default:
+				break;
+			}
+		}
 	}
 	else if (strcmp(rx_buffer, "set_time") == 0 || strcmp(rx_buffer, "SET_TIME") == 0)
 	{
 		// Aquí se puede agregar la lógica para manejar el comando "set_time"
-		RTC_SetTime(rtc);
-		UART_SendString_IT("Comando 'set_time' recibido.");
+		RTC_t aux;
+		for (current_read = DAY; current_read <= SEC; current_read++)
+		{
+			while (!nueva_cadena)
+			{
+				if (new_char_recv)
+				{
+					new_char_recv = false;
+					save_char();
+				}
+			}
+			nueva_cadena = false;
+			switch (current_read)
+			{
+			case DAY:
+				aux.day = atoi(rx_buffer);
+				break;
+			case MONTH:
+				aux.month = atoi(rx_buffer);
+				break;
+			case YEAR:
+				aux.year = atoi(rx_buffer);
+				break;
+			case HOUR:
+				aux.hour = atoi(rx_buffer);
+				break;
+			case MIN:
+				aux.min = atoi(rx_buffer);
+				break;
+			case SEC:
+				aux.sec = atoi(rx_buffer);
+				break;
+			default:
+				break;
+			}
+		}
+		RTC_SetTime(aux);
 	}
 	else
 	{
@@ -131,22 +178,21 @@ void manage_tx_buffer()
 	}
 }
 
-void INT0_init(void)
+bool compare()
 {
-	EIMSK |= (1 << INT0);	 // Habilita interrupción externa INT0
-	EICRA |= (1 << ISC01); // Interrupción en flanco descendente (INT/SQW se va a LOW)
+	return (time.hour == alarm_time.hour) &&
+				 (time.min == alarm_time.min) &&
+				 (time.sec == alarm_time.sec)
 }
 
 int main(void)
 {
-	INT0_init();
 	RCT_Init();
 	UART_Init(BR9600);					// Configurar UART a 9600bps, 8 bits de datos, 1 bit de parada
 	UART_TX_Enable();						// Habilitar transmisor
 	UART_RX_Enable();						// Habilitar receptor
 	UART_RX_Interrupt_Enable(); // Habilitar interrupción de recepción
 	UART_TX_Interrupt_Enable();
-	// No la habilitamos la interrupcion del tx????
 	UART_Send_String("Bienvenidos a mi canal de youtube.\r\n"); // Envío el mensaje de Bienvenida
 	sei();																											// habilitar interrupciones globales
 
@@ -167,10 +213,26 @@ int main(void)
 			new_char_sent = false; // Reiniciar el indicador
 			manage_tx_buffer();		 // Manejar el buffer de transmisión
 		}
-		if (alarm)
+		if (alarm && time_flag)
 		{
-			alarm = false;
+			if (alarm_times >= 4)
+			{
+				alarm = false;
+				alarm_times = 0;
+			}
 			manage_alarm();
+		}
+		if (powered && time_flag)
+		{
+			time_flag = false;
+			time = RTC_GetTime();
+			char *str[BUFFER_SIZE];
+			sprintf((char *)str, "FECHA: %02d/%02d/%04d HORA:%02d/%02d/%02d", time.day, time.month, time.year, time.hour, time.min, time.sec);
+			UART_SendString_IT(str);
+		}
+		if (!alarm && compare(time, alarm_time))
+		{
+			alarm = true;
 		}
 	}
 }

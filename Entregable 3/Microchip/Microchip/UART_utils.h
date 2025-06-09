@@ -19,8 +19,11 @@
 // Tipo de dato booleano
 #include "main.h"
 
-extern volatile char c_recv;
+// extern volatile char c_recv;
 extern volatile bool new_char_recv;
+extern volatile uint8_t tx_index;
+extern volatile bool enviado;
+extern volatile char tx_buffer[BUFFER_SIZE];
 // -------- Prototipos de funciones Publicas ---------------
 
 // Inicializacion de Puerto Serie
