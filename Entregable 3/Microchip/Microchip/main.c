@@ -26,6 +26,30 @@ volatile uint8_t tx_index = 0;
 volatile uint8_t enviando = 0;
 volatile char c_sent;
 volatile bool new_char_sent = false;
+volatile bool alarm = false;
+volatile bool powered = false;
+
+void manage_alarm()
+{
+	// Limpiar bandera A1F para futuras alarmas usando tus funciones I2C
+	I2C_start();
+	I2C_write(RTC_WriteMode);				 // Dirección de escritura RTC
+	I2C_write(RTC_StatusRegAddress); // Registro de estado
+	I2C_stop();
+
+	I2C_start();
+	I2C_write(RTC_ReadMode); // Dirección de lectura RTC
+	uint8_t status = I2C_read(true);
+	I2C_stop();
+
+	status &= ~0x01; // Limpiar A1F
+
+	I2C_start();
+	I2C_write(RTC_WriteMode);
+	I2C_write(RTC_StatusRegAddress);
+	I2C_write(status);
+	I2C_stop();
+}
 
 void save_char()
 {
@@ -50,26 +74,30 @@ void save_char()
 		}
 	}
 }
+
 void manage_new_string()
 {
 	if (strcmp(rx_buffer, "on") == 0 || strcmp(rx_buffer, "ON") == 0)
 	{
 		// Aquí se puede agregar la lógica para manejar el comando "on"
+		powered = true;
 		UART_SendString_IT("Comando 'ON' recibido.");
 	}
 	else if (strcmp(rx_buffer, "off") == 0 || strcmp(rx_buffer, "OFF") == 0)
 	{
-		// Aquí se puede agregar la lógica para manejar el comando "off"
+		powered = false;
 		UART_SendString_IT("Comando 'OFF' recibido.");
 	}
 	else if (strcmp(rx_buffer, "set_alarm") == 0 || strcmp(rx_buffer, "SET_ALARM") == 0)
 	{
-		// Aquí se puede agregar la lógica para manejar el comando "set_alarm"
+		RTC_t rtc;
+		RTC_SetAlarm(rtc);
 		UART_SendString_IT("Comando 'set_alarm' recibido.");
 	}
 	else if (strcmp(rx_buffer, "set_time") == 0 || strcmp(rx_buffer, "SET_TIME") == 0)
 	{
 		// Aquí se puede agregar la lógica para manejar el comando "set_time"
+		RTC_SetTime(rtc);
 		UART_SendString_IT("Comando 'set_time' recibido.");
 	}
 	else
@@ -85,41 +113,42 @@ void manage_tx_buffer()
 		c_sent = tx_buffer[tx_index];
 		if (c_sent != '\0')
 		{
-			SerialPort_Send_Data(c_sent);
+			UART_Send_Data(c_sent);
 			tx_index++;
 		}
 		else
 		{
-			SerialPort_Send_Data('\r');
+			UART_Send_Data('\r');
 			enviando = 2;
 		}
 	}
 	else if (enviando == 2)
 	{
-		SerialPort_Send_Data('\n');
+		UART_Send_Data('\n');
 		enviando = 0;
 		tx_index = 0;							// Reiniciar el índice de transmisión
 		UCSR0B &= ~(1 << TXCIE0); // Deshabilita interrupción TX
 	}
 }
 
+void INT0_init(void)
+{
+	EIMSK |= (1 << INT0);	 // Habilita interrupción externa INT0
+	EICRA |= (1 << ISC01); // Interrupción en flanco descendente (INT/SQW se va a LOW)
+}
+
 int main(void)
 {
-	// i2c_init();
-	// i2c_start();
-	// i2c_write(0xD0);
-	// i2c_write(0);
-	// i2c_write(10);
-	// i2c_write(11);
-	// i2c_write(12);
-	// i2c_stop();
-	SerialPort_Init(BR9600);																					// Configurar UART a 9600bps, 8 bits de datos, 1 bit de parada
-	SerialPort_TX_Enable();																						// Habilitar transmisor
-	SerialPort_RX_Enable();																						// Habilitar receptor
-	SerialPort_RX_Interrupt_Enable();																	// Habilitar interrupción de recepción
-	// No habilitamos el interrupcion del tx????
-	SerialPort_Send_String("Bienvenidos a mi canal de youtube.\r\n"); // Envío el mensaje de Bienvenida
-	sei();																														// habilitar interrupciones globales
+	INT0_init();
+	RCT_Init();
+	UART_Init(BR9600);					// Configurar UART a 9600bps, 8 bits de datos, 1 bit de parada
+	UART_TX_Enable();						// Habilitar transmisor
+	UART_RX_Enable();						// Habilitar receptor
+	UART_RX_Interrupt_Enable(); // Habilitar interrupción de recepción
+	UART_TX_Interrupt_Enable();
+	// No la habilitamos la interrupcion del tx????
+	UART_Send_String("Bienvenidos a mi canal de youtube.\r\n"); // Envío el mensaje de Bienvenida
+	sei();																											// habilitar interrupciones globales
 
 	while (1)
 	{
@@ -138,101 +167,10 @@ int main(void)
 			new_char_sent = false; // Reiniciar el indicador
 			manage_tx_buffer();		 // Manejar el buffer de transmisión
 		}
+		if (alarm)
+		{
+			alarm = false;
+			manage_alarm();
+		}
 	}
 }
-
-// #include <avr/io.h>
-// #include <avr/interrupt.h>
-// #include <stdbool.h>
-// #include <string.h>
-
-// #define F_CPU 16000000UL
-// #define BAUD 9600
-// #define UBRR_VALUE ((F_CPU / (16UL * BAUD)) - 1)
-
-// #define BUFFER_SIZE 64
-
-// // Buffers y estados
-// volatile char rx_buffer[BUFFER_SIZE];
-// volatile uint8_t rx_index = 0;
-// volatile bool nueva_cadena = false;
-
-// volatile char tx_buffer[BUFFER_SIZE];
-// volatile uint8_t tx_index = 0;
-// volatile uint8_t enviando = 0;
-
-// void UART_Init(void) {
-// 	UBRR0H = (uint8_t)(UBRR_VALUE >> 8);
-// 	UBRR0L = (uint8_t)(UBRR_VALUE);
-
-// 	UCSR0B = (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
-// 	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
-// }
-
-// void UART_SendChar(char c) {
-// 	while (!(UCSR0A & (1 << UDRE0)));
-// 	UDR0 = c;
-// }
-
-// void SerialPort_Send_String(char *str) {
-// 	while (*str) {
-// 		UART_SendChar(*str++);
-// 	}
-// }
-
-// void UART_SendString_IT(char *str) {
-// 	strncpy((char *)tx_buffer, str, BUFFER_SIZE - 3);
-// 	tx_buffer[BUFFER_SIZE - 3] = '\0';
-
-// 	tx_index = 0;
-// 	enviando = 1;
-
-// 	UCSR0B |= (1 << TXCIE0);
-// 	UART_SendChar(tx_buffer[tx_index++]);
-// }
-
-// // ISR de recepci�n
-// ISR(USART_RX_vect) {
-// 	char c = UDR0;
-// 	if (rx_index < BUFFER_SIZE - 1) {
-// 		if (c == '\r') {
-// 			rx_buffer[rx_index] = '\0';
-// 			rx_index = 0;
-// 			nueva_cadena = true;
-// 			} else {
-// 			rx_buffer[rx_index++] = c;
-// 		}
-// 		} else {
-// 		rx_index = 0; // Overflow de buffer
-// 	}
-// }
-
-// // ISR de transmisi�n completa
-// ISR(USART_TX_vect) {
-// 	if (enviando == 1) {
-// 		char c = tx_buffer[tx_index];
-// 		if (c != '\0') {
-// 			UART_SendChar(c);
-// 			tx_index++;
-// 			} else {
-// 			UART_SendChar('\r');
-// 			enviando = 2;
-// 		}
-// 		} else if (enviando == 2) {
-// 		UART_SendChar('\n');
-// 		enviando = 0;
-// 		UCSR0B &= ~(1 << TXCIE0); // Deshabilita interrupci�n TX
-// 	}
-// }
-
-// int main(void) {
-// 	UART_Init();
-// 	sei();
-
-// 	while (1) {
-// 		if (nueva_cadena) {
-// 			nueva_cadena = false;
-// 			UART_SendString_IT((char *)rx_buffer);
-// 		}
-// 	}
-// }
