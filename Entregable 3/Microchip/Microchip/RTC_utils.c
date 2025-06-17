@@ -8,6 +8,9 @@
 #include "RTC_utils.h"
 #include "I2C_utils.h"
 
+uint8_t BCDtoInt(uint8_t value);
+uint8_t InttoBCD(uint8_t value);
+
 void RTC_Init(void)
 {
   I2C_init();
@@ -26,9 +29,9 @@ void RTC_SetTime(RTC_t rtc)
 
   I2C_write(RTC_WriteMode);
   I2C_write(RTC_SecondRegAddress);
-  I2C_write(InttoBCD(rtc.sec) & SEC_MASK);
-  I2C_write(InttoBCD(rtc.min) & MIN_MASK);
-  I2C_write(InttoBCD(rtc.hour) & HOUR_MASK);
+  I2C_write(InttoBCD(rtc.seconds) & SEC_MASK);
+  I2C_write(InttoBCD(rtc.minutes) & MIN_MASK);
+  I2C_write(InttoBCD(rtc.hours) & HOUR_MASK);
 
   I2C_stop();
 
@@ -56,9 +59,9 @@ RTC_t RTC_GetTime(void)
   I2C_start();
 
   I2C_write(RTC_ReadMode);
-  rtc.sec = BCDtoInt(I2C_read(false));
-  rtc.min = BCDtoInt(I2C_read(false));
-  rtc.hour = BCDtoInt(I2C_read(true));
+  rtc.seconds = BCDtoInt(I2C_read(false));
+  rtc.minutes = BCDtoInt(I2C_read(false));
+  rtc.hours = BCDtoInt(I2C_read(true));
 
   I2C_stop();
 
@@ -87,7 +90,7 @@ uint8_t BCDtoInt(uint8_t value)
   return ((value >> 4) * 10) + (value & 0x0F);
 }
 
-uinty_t InttoBCD(uint8_t)
+uint8_t InttoBCD(uint8_t value)
 {
   return ((value / 10) << 4) | (value % 10);
 }

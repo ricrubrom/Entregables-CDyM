@@ -15,14 +15,18 @@
 
 // Interrupciones del Microcontrolador
 #include <avr/interrupt.h>
+#include <util/delay.h>
 
 // Tipo de dato booleano
 #include "main.h"
 
 // extern volatile char c_recv;
 extern volatile bool new_char_recv;
+extern volatile bool new_char_sent;
 extern volatile uint8_t tx_index;
 extern volatile bool enviado;
+extern volatile uint8_t enviando;
+extern volatile char c_recv;
 extern volatile char tx_buffer[BUFFER_SIZE];
 // -------- Prototipos de funciones Publicas ---------------
 

@@ -10,6 +10,7 @@
 #include "I2C_utils.h"
 #include "UART_utils.h"
 #include "RTC_utils.h"
+#include "Timer1_utils.h"
 #include "main.h"
 #include <string.h>
 
@@ -32,6 +33,8 @@ volatile uint8_t enviando = 0;
 // Flags y estados generales
 volatile bool alarm = false;
 volatile bool powered = false;
+volatile bool time_flag = false;
+volatile bool alarm_times = 0;
 
 // RTC
 volatile RTC_t time;
@@ -41,7 +44,7 @@ volatile RTC_Field current_read = DAY;
 
 void save_char()
 {
-	c_recv = UDR0;
+	// c_recv = UDR0;
 	if (c_recv == '\b' || c_recv == 0x7F) // Si se recibe un carácter de retroceso
 	{
 		if (rx_index > 0) // Evitar que el índice sea negativo
@@ -93,13 +96,13 @@ void manage_new_string()
 			switch (current_read)
 			{
 			case HOUR:
-				alarm_time.hour = atoi(rx_buffer);
+				alarm_time.hours = atoi(rx_buffer);
 				break;
 			case MIN:
-				alarm_time.min = atoi(rx_buffer);
+				alarm_time.minutes = atoi(rx_buffer);
 				break;
 			case SEC:
-				alarm_time.sec = atoi(rx_buffer);
+				alarm_time.seconds = atoi(rx_buffer);
 				break;
 			default:
 				break;
@@ -133,13 +136,13 @@ void manage_new_string()
 				aux.year = atoi(rx_buffer);
 				break;
 			case HOUR:
-				aux.hour = atoi(rx_buffer);
+				aux.hours = atoi(rx_buffer);
 				break;
 			case MIN:
-				aux.min = atoi(rx_buffer);
+				aux.minutes = atoi(rx_buffer);
 				break;
 			case SEC:
-				aux.sec = atoi(rx_buffer);
+				aux.seconds = atoi(rx_buffer);
 				break;
 			default:
 				break;
@@ -180,21 +183,23 @@ void manage_tx_buffer()
 
 bool compare()
 {
-	return (time.hour == alarm_time.hour) &&
-				 (time.min == alarm_time.min) &&
-				 (time.sec == alarm_time.sec)
+	return (time.hours == alarm_time.hours) &&
+				 (time.minutes == alarm_time.minutes) &&
+				 (time.seconds == alarm_time.seconds);
 }
 
 int main(void)
 {
-	RCT_Init();
+	alarm_time.seconds = 99;
+	RTC_Init();
 	UART_Init(BR9600);					// Configurar UART a 9600bps, 8 bits de datos, 1 bit de parada
 	UART_TX_Enable();						// Habilitar transmisor
 	UART_RX_Enable();						// Habilitar receptor
 	UART_RX_Interrupt_Enable(); // Habilitar interrupción de recepción
-	UART_TX_Interrupt_Enable();
-	UART_Send_String("Bienvenidos a mi canal de youtube.\r\n"); // Envío el mensaje de Bienvenida
-	sei();																											// habilitar interrupciones globales
+	// UART_TX_Interrupt_Enable();
+	Timer1_init();
+	UART_SendString_IT("Bienvenidos a mi canal de youtube."); // Envío el mensaje de Bienvenida
+	sei();																										// habilitar interrupciones globales
 
 	while (1)
 	{
@@ -213,22 +218,28 @@ int main(void)
 			new_char_sent = false; // Reiniciar el indicador
 			manage_tx_buffer();		 // Manejar el buffer de transmisión
 		}
-		if (alarm && time_flag)
-		{
-			if (alarm_times >= 4)
-			{
-				alarm = false;
-				alarm_times = 0;
-			}
-			manage_alarm();
-		}
 		if (powered && time_flag)
 		{
-			time_flag = false;
-			time = RTC_GetTime();
-			char *str[BUFFER_SIZE];
-			sprintf((char *)str, "FECHA: %02d/%02d/%04d HORA:%02d/%02d/%02d", time.day, time.month, time.year, time.hour, time.min, time.sec);
-			UART_SendString_IT(str);
+			if (alarm)
+			{
+				time_flag = false;
+				alarm_times++;
+				UART_SendString_IT("ALARMA");
+				if (alarm_times >= 5)
+				{
+					alarm = false;
+					alarm_times = 0;
+					time = RTC_GetTime(); // Actualizar la hora actual
+				}
+			}
+			else
+			{
+				time_flag = false;
+				time = RTC_GetTime();
+				char *str[BUFFER_SIZE];
+				sprintf((char *)str, "FECHA: %02d/%02d/%02d HORA:%02d:%02d:%02d", time.day, time.month, time.year, time.hours, time.minutes, time.seconds);
+				UART_SendString_IT(str);
+			}
 		}
 		if (!alarm && compare(time, alarm_time))
 		{

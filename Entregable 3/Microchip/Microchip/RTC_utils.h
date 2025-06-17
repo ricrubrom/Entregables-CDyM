@@ -11,8 +11,6 @@
 #include <avr/io.h>
 #include "main.h"
 
-extern volatile bool alarm;
-
 typedef struct
 {
   uint8_t seconds; // 0-59
@@ -40,8 +38,8 @@ typedef struct
 
 #define RTC_DaysRegAddress 0x04 // Meses y Anios en celdas siguientes, no es necesario declararlas porque al escribir se mueven solas
 
-void RTC_Init();
-void RTC_GetTime(RTC_t *rtc);
-void RTC_SetTime(RTC_t *rtc);
+void RTC_Init(void);
+RTC_t RTC_GetTime(void);
+void RTC_SetTime(RTC_t rtc);
 
 #endif /* RTC_UTILS_H_ */

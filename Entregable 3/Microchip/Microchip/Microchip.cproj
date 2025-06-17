@@ -138,6 +138,12 @@
     <Compile Include="RTC_utils.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Timer1_utils.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Timer1_utils.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="UART_utils.c">
       <SubType>compile</SubType>
     </Compile>

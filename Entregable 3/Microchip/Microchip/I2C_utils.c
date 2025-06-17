@@ -34,7 +34,7 @@ void I2C_write(unsigned char data)
     ;
 }
 
-unsigned char I2C_read(unsigned char isLast)
+uint8_t I2C_read(unsigned char isLast)
 {
   if (isLast == 0)
     TWCR = I2C_READ_ACK;

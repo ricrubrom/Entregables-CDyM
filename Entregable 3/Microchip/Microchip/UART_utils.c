@@ -11,6 +11,7 @@
 
 ISR(USART_RX_vect)
 {
+  c_recv = UDR0;
   new_char_recv = true; // Indicar que hay un nuevo carácter recibido
 }
 
@@ -29,6 +30,7 @@ void UART_SendString_IT(char *str)
 
   UCSR0B |= (1 << TXCIE0);
   UART_Send_Data(tx_buffer[tx_index]);
+  _delay_us(5);
 }
 // Inicialización de Puerto Serie
 
