@@ -5,42 +5,38 @@
  * Author : Barcala
  */
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
+#include "main.h"
 #include "I2C_utils.h"
 #include "UART_utils.h"
 #include "RTC_utils.h"
 #include "Timer1_utils.h"
-#include "main.h"
-#include <string.h>
 
-#define BR9600 (0x67)
 
 // RX (Recepción)
-volatile char rx_buffer[BUFFER_SIZE];
-volatile uint8_t rx_index = 0;
+char rx_buffer[BUFFER_SIZE];
+uint8_t rx_index = 0;
+bool nueva_cadena = false;
 volatile char c_recv;
 volatile bool new_char_recv = false;
-volatile bool nueva_cadena = false;
 
 // TX (Transmisión)
-volatile char tx_buffer[BUFFER_SIZE];
-volatile uint8_t tx_index = 0;
-volatile char c_sent;
+char tx_buffer[BUFFER_SIZE];
+uint8_t tx_index = 0;
+char c_sent;
+uint8_t enviando = 0;
 volatile bool new_char_sent = false;
-volatile uint8_t enviando = 0;
 
 // Flags y estados generales
-volatile bool alarm = false;
-volatile bool powered = false;
+bool alarm = false;
+bool powered = false;
 volatile bool time_flag = false;
-volatile bool alarm_times = 0;
+bool alarm_times = 0;
 
 // RTC
-volatile RTC_t time;
-volatile RTC_t alarm_time;
+RTC_t time;
+RTC_t alarm_time;
 
-volatile RTC_Field current_read = DAY;
+RTC_Field current_read = DAY;
 
 void save_char()
 {
@@ -133,7 +129,7 @@ void manage_new_string()
 				aux.month = atoi(rx_buffer);
 				break;
 			case YEAR:
-				aux.year = atoi(rx_buffer);
+				aux.year = (atoi(rx_buffer) % 100);
 				break;
 			case HOUR:
 				aux.hours = atoi(rx_buffer);
@@ -188,19 +184,41 @@ bool compare()
 				 (time.seconds == alarm_time.seconds);
 }
 
-int main(void)
+void manage_alarm()
 {
-	alarm_time.seconds = 99;
+	alarm_times++;
+	UART_SendString_IT("ALARMA");
+	if (alarm_times >= 5)
+	{
+		alarm = false;
+		alarm_times = 0;
+		time = RTC_GetTime(); // Actualizar la hora actual
+	}
+}
+
+void print_time()
+{
+	time = RTC_GetTime();
+	char *str[BUFFER_SIZE];
+	sprintf((char *)str, "FECHA: %02d/%02d/%02d HORA:%02d:%02d:%02d", time.day, time.month, time.year, time.hours, time.minutes, time.seconds);
+	UART_SendString_IT(str);
+}
+
+void innit()
+{
 	RTC_Init();
 	UART_Init(BR9600);					// Configurar UART a 9600bps, 8 bits de datos, 1 bit de parada
 	UART_TX_Enable();						// Habilitar transmisor
 	UART_RX_Enable();						// Habilitar receptor
 	UART_RX_Interrupt_Enable(); // Habilitar interrupción de recepción
-	// UART_TX_Interrupt_Enable();
 	Timer1_init();
 	UART_SendString_IT("Bienvenidos a mi canal de youtube."); // Envío el mensaje de Bienvenida
 	sei();																										// habilitar interrupciones globales
+}
 
+int main(void)
+{
+	innit(); // Inicializar el sistema
 	while (1)
 	{
 		if (new_char_recv)
@@ -220,30 +238,15 @@ int main(void)
 		}
 		if (powered && time_flag)
 		{
+			time_flag = false;
 			if (alarm)
-			{
-				time_flag = false;
-				alarm_times++;
-				UART_SendString_IT("ALARMA");
-				if (alarm_times >= 5)
-				{
-					alarm = false;
-					alarm_times = 0;
-					time = RTC_GetTime(); // Actualizar la hora actual
-				}
-			}
+				manage_alarm(); // Manejar la alarma
 			else
+				print_time(); // Imprimir la hora actual
+			if (!alarm && compare(time, alarm_time))
 			{
-				time_flag = false;
-				time = RTC_GetTime();
-				char *str[BUFFER_SIZE];
-				sprintf((char *)str, "FECHA: %02d/%02d/%02d HORA:%02d:%02d:%02d", time.day, time.month, time.year, time.hours, time.minutes, time.seconds);
-				UART_SendString_IT(str);
+				alarm = true;
 			}
-		}
-		if (!alarm && compare(time, alarm_time))
-		{
-			alarm = true;
 		}
 	}
 }
