@@ -11,12 +11,11 @@
 #include "RTC_utils.h"
 #include "Timer1_utils.h"
 
-
 // RX (Recepción)
 char rx_buffer[BUFFER_SIZE];
 uint8_t rx_index = 0;
 bool nueva_cadena = false;
-volatile char c_recv;
+char c_recv;
 volatile bool new_char_recv = false;
 
 // TX (Transmisión)
@@ -29,8 +28,8 @@ volatile bool new_char_sent = false;
 // Flags y estados generales
 bool alarm = false;
 bool powered = false;
-volatile bool time_flag = false;
 bool alarm_times = 0;
+volatile bool time_flag = false;
 
 // RTC
 RTC_t time;
@@ -40,7 +39,6 @@ RTC_Field current_read = DAY;
 
 void save_char()
 {
-	// c_recv = UDR0;
 	if (c_recv == '\b' || c_recv == 0x7F) // Si se recibe un carácter de retroceso
 	{
 		if (rx_index > 0) // Evitar que el índice sea negativo
@@ -69,7 +67,6 @@ void manage_new_string()
 	{
 		// Aquí se puede agregar la lógica para manejar el comando "on"
 		powered = true;
-		UART_SendString_IT("Comando 'ON' recibido.");
 	}
 	else if (strcmp(rx_buffer, "off") == 0 || strcmp(rx_buffer, "OFF") == 0)
 	{
@@ -84,6 +81,7 @@ void manage_new_string()
 			{
 				if (new_char_recv)
 				{
+					c_recv = UDR0;
 					new_char_recv = false;
 					save_char();
 				}
@@ -115,6 +113,7 @@ void manage_new_string()
 			{
 				if (new_char_recv)
 				{
+					c_recv = UDR0;
 					new_char_recv = false;
 					save_char();
 				}
@@ -223,6 +222,7 @@ int main(void)
 	{
 		if (new_char_recv)
 		{
+			c_recv = UDR0;
 			new_char_recv = false; // Reiniciar el indicador
 			save_char();					 // Guardar el carácter recibido
 		}
@@ -241,6 +241,7 @@ int main(void)
 			time_flag = false;
 			if (alarm)
 				manage_alarm(); // Manejar la alarma
+			// else if (!enviando)
 			else
 				print_time(); // Imprimir la hora actual
 			if (!alarm && compare(time, alarm_time))

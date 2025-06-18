@@ -19,7 +19,6 @@ extern uint8_t enviando;
 extern char tx_buffer[BUFFER_SIZE];
 extern volatile bool new_char_recv;
 extern volatile bool new_char_sent;
-extern volatile char c_recv;
 // -------- Prototipos de funciones Publicas ---------------
 
 // Inicializacion de Puerto Serie
