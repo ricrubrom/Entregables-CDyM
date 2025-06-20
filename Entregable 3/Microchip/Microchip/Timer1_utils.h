@@ -8,6 +8,8 @@
 #ifndef TIMER1_UTILS_H_
 #define TIMER1_UTILS_H_
 
+#include <avr/io.h>
+#include <avr/interrupt.h>
 #include "main.h"
 
 extern volatile bool time_flag;

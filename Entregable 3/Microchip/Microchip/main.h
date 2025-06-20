@@ -29,6 +29,6 @@ typedef enum
   SEC,
 } RTC_Field;
 
-#define BUFFER_SIZE 64
+#define BUFFER_SIZE 128
 
 #endif /* MAIN_H_ */

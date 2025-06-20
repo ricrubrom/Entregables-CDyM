@@ -28,7 +28,8 @@ void UART_SendString_IT(char *str)
   enviando = 1;
 
   UCSR0B |= (1 << TXCIE0);
-  UART_Send_Data(tx_buffer[tx_index]);
+  UART_Send_Data(tx_buffer[tx_index++]);
+  _delay_ms(5); // Esperar un poco para asegurar que el buffer esté listo
 }
 // Inicialización de Puerto Serie
 

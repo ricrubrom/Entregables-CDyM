@@ -8,6 +8,8 @@
 #ifndef RTC_UTILS_H_
 #define RTC_UTILS_H_
 
+#include <avr/io.h>
+#include <avr/interrupt.h>
 #include "main.h"
 
 typedef struct

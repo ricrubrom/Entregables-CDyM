@@ -8,6 +8,8 @@
 #ifndef I2C_UTILS_H_
 #define I2C_UTILS_H_
 
+#include <avr/io.h>
+#include <avr/interrupt.h>
 #include "main.h"
 
 #define I2C_START_CMD ((1 << TWINT) | (1 << TWSTA) | (1 << TWEN))

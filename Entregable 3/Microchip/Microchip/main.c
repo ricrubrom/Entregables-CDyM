@@ -211,8 +211,8 @@ void innit()
 	UART_RX_Enable();						// Habilitar receptor
 	UART_RX_Interrupt_Enable(); // Habilitar interrupción de recepción
 	Timer1_init();
-	UART_SendString_IT("Bienvenidos a mi canal de youtube."); // Envío el mensaje de Bienvenida
-	sei();																										// habilitar interrupciones globales
+	UART_SendString_IT("Bienvenidos\r\nComandos:\r\n- on / ON\r\n- off / OFF \r\n- set_time / SET_TIME\r\n- set_alarm / SET_ALARM\r\n"); // Envío el mensaje de Bienvenida
+	sei();																																																															 // habilitar interrupciones globales
 }
 
 int main(void)
@@ -241,7 +241,6 @@ int main(void)
 			time_flag = false;
 			if (alarm)
 				manage_alarm(); // Manejar la alarma
-			// else if (!enviando)
 			else
 				print_time(); // Imprimir la hora actual
 			if (!alarm && compare(time, alarm_time))
