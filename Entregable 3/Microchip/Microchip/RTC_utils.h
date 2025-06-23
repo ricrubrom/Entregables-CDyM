@@ -29,11 +29,11 @@ typedef struct
 #define MONTH_MASK 0b00011111
 #define YEAR_MASK 0b11111111
 
-#define RTC_ControlRegAddress 0x68 // Dirección de Control del RTC DS3231
+#define RTC_ControlRegAddress 0xE // Dirección de Control del RTC DS3231
 // Para leer o escribir en el módulo, se debe utilizar la dirección de control y poner el último bit en 0 o 1 según lectura o escritura
 // Los siguientes son los bytes para leer o escribir, con la dirección destino y la operación a realizar
-#define RTC_ReadMode (RTC_ControlRegAddress << 1) | 0x01
-#define RTC_WriteMode (RTC_ControlRegAddress << 1)
+#define RTC_ReadMode (0x68 << 1) | 0x01
+#define RTC_WriteMode (0x68 << 1)
 
 #define RTC_SecondRegAddress 0x00 // Minutos y horas en celdas siguientes, no es necesario declararlas porque al escribir se mueven solas
 
