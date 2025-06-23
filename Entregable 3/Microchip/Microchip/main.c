@@ -52,12 +52,9 @@ void save_char()
 		rx_index = 0;								// Reiniciar el índice
 		nueva_cadena = true;				// Indicar que hay una nueva cadena
 	}
-	else
+	else if (rx_index < sizeof(rx_buffer) - 1) // Evitar overflow del buffer
 	{
-		if (rx_index < sizeof(rx_buffer) - 1) // Evitar overflow del buffer
-		{
-			rx_buffer[rx_index++] = c_recv; // Agregar al buffer
-		}
+		rx_buffer[rx_index++] = c_recv; // Agregar al buffer
 	}
 }
 
@@ -107,7 +104,6 @@ void manage_new_string()
 {
 	if (strcmp(rx_buffer, "on") == 0 || strcmp(rx_buffer, "ON") == 0)
 	{
-		// Aquí se puede agregar la lógica para manejar el comando "on"
 		powered = true;
 	}
 	else if (strcmp(rx_buffer, "off") == 0 || strcmp(rx_buffer, "OFF") == 0)
@@ -117,8 +113,7 @@ void manage_new_string()
 	}
 	else if (strcmp(rx_buffer, "set_alarm") == 0 || strcmp(rx_buffer, "SET_ALARM") == 0)
 	{
-		alarm_time = manage_input(HOUR); // Leer los campos de la alarma
-	}
+		alarm_time = manage_input(HOUR);
 	else if (strcmp(rx_buffer, "set_time") == 0 || strcmp(rx_buffer, "SET_TIME") == 0)
 	{
 		RTC_SetTime(manage_input(DAY));
