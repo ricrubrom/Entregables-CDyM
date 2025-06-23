@@ -211,7 +211,7 @@ void innit()
 	UART_RX_Enable();						// Habilitar receptor
 	UART_RX_Interrupt_Enable(); // Habilitar interrupción de recepción
 	Timer1_init();
-	UART_SendString_IT("Bienvenidos\r\nComandos:\r\n- on / ON\r\n- off / OFF \r\n- set_time / SET_TIME\r\n- set_alarm / SET_ALARM\r\n"); // Envío el mensaje de Bienvenida
+	UART_SendString_IT("Bienvenidos\r\nComandos:\r\n- on / ON\r\n- off / OFF \r\n- set_time / SET_TIME\r\n - Dia \r\n - Mes \r\n - Anio \r\n - Hora \r\n - Min \r\n - Seg \r\n- set_alarm / SET_ALARM\r\n - Hora \r\n - Min \r\n - Seg \r\n");																									 // Envío el mensaje de Bienvenida
 	sei();																																																															 // habilitar interrupciones globales
 }
 

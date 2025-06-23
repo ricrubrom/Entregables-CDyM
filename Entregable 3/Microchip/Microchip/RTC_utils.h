@@ -29,7 +29,7 @@ typedef struct
 #define MONTH_MASK 0b00011111
 #define YEAR_MASK 0b11111111
 
-#define RTC_ControlRegAddress 0xE // Dirección de Control del RTC DS3231
+#define RTC_ControlRegAddress 0x0E // Dirección de Control del RTC DS3231
 // Para leer o escribir en el módulo, se debe utilizar la dirección de control y poner el último bit en 0 o 1 según lectura o escritura
 // Los siguientes son los bytes para leer o escribir, con la dirección destino y la operación a realizar
 #define RTC_ReadMode (0x68 << 1) | 0x01

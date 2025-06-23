@@ -9,9 +9,9 @@
 
 void I2C_init(void)
 {
-  TWSR = 0x00;
+  TWSR = 0x00; //prescaler en 0
   TWBR = 72; // scl frecuencia 100kHz
-  TWCR = 0x04;
+  TWCR = 0x04; //habilito i2c
 }
 
 void I2C_start(void)

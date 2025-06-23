@@ -36,9 +36,9 @@ void UART_SendString_IT(char *str)
 void UART_Init(uint8_t config)
 {
   UCSR0B = 0;
-  UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
+  UCSR0C = (1 << UCSZ01) | (1 << UCSZ00); //8 bits
   UBRR0H = (unsigned char)(config >> 8);
-  UBRR0L = (unsigned char)config;
+  UBRR0L = (unsigned char)config; //baud rate=9600bps
 }
 
 // Inicialización de Transmisor
