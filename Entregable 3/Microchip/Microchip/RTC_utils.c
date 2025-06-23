@@ -59,9 +59,9 @@ RTC_t RTC_GetTime(void)
   I2C_start();
 
   I2C_write(RTC_ReadMode);
-  rtc.seconds = BCDtoInt(I2C_read(false)); //no es el ultimo
-  rtc.minutes = BCDtoInt(I2C_read(false)); //no es el ultimo
-  rtc.hours = BCDtoInt(I2C_read(true)); //es el ultimo
+  rtc.seconds = BCDtoInt(I2C_read(false)); // no es el ultimo
+  rtc.minutes = BCDtoInt(I2C_read(false)); // no es el ultimo
+  rtc.hours = BCDtoInt(I2C_read(true));    // es el ultimo
 
   I2C_stop();
 

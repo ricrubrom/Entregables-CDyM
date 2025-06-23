@@ -61,6 +61,48 @@ void save_char()
 	}
 }
 
+RTC_t manage_input(RTC_Field start)
+{
+	RTC_t aux;
+	for (current_read = start; current_read <= SEC; current_read++)
+	{
+		while (!nueva_cadena)
+		{
+			if (new_char_recv)
+			{
+				c_recv = UDR0;
+				new_char_recv = false;
+				save_char();
+			}
+		}
+		nueva_cadena = false;
+		switch (current_read)
+		{
+		case DAY:
+			aux.day = atoi(rx_buffer);
+			break;
+		case MONTH:
+			aux.month = atoi(rx_buffer);
+			break;
+		case YEAR:
+			aux.year = (atoi(rx_buffer) % 100);
+			break;
+		case HOUR:
+			aux.hours = atoi(rx_buffer);
+			break;
+		case MIN:
+			aux.minutes = atoi(rx_buffer);
+			break;
+		case SEC:
+			aux.seconds = atoi(rx_buffer);
+			break;
+		default:
+			break;
+		}
+	}
+	return aux; // Devolver la estructura RTC con los valores leídos
+}
+
 void manage_new_string()
 {
 	if (strcmp(rx_buffer, "on") == 0 || strcmp(rx_buffer, "ON") == 0)
@@ -75,75 +117,11 @@ void manage_new_string()
 	}
 	else if (strcmp(rx_buffer, "set_alarm") == 0 || strcmp(rx_buffer, "SET_ALARM") == 0)
 	{
-		for (current_read = HOUR; current_read <= SEC; current_read++)
-		{
-			while (!nueva_cadena)
-			{
-				if (new_char_recv)
-				{
-					c_recv = UDR0;
-					new_char_recv = false;
-					save_char();
-				}
-			}
-			nueva_cadena = false;
-			switch (current_read)
-			{
-			case HOUR:
-				alarm_time.hours = atoi(rx_buffer);
-				break;
-			case MIN:
-				alarm_time.minutes = atoi(rx_buffer);
-				break;
-			case SEC:
-				alarm_time.seconds = atoi(rx_buffer);
-				break;
-			default:
-				break;
-			}
-		}
+		alarm_time = manage_input(HOUR); // Leer los campos de la alarma
 	}
 	else if (strcmp(rx_buffer, "set_time") == 0 || strcmp(rx_buffer, "SET_TIME") == 0)
 	{
-		// Aquí se puede agregar la lógica para manejar el comando "set_time"
-		RTC_t aux;
-		for (current_read = DAY; current_read <= SEC; current_read++)
-		{
-			while (!nueva_cadena)
-			{
-				if (new_char_recv)
-				{
-					c_recv = UDR0;
-					new_char_recv = false;
-					save_char();
-				}
-			}
-			nueva_cadena = false;
-			switch (current_read)
-			{
-			case DAY:
-				aux.day = atoi(rx_buffer);
-				break;
-			case MONTH:
-				aux.month = atoi(rx_buffer);
-				break;
-			case YEAR:
-				aux.year = (atoi(rx_buffer) % 100);
-				break;
-			case HOUR:
-				aux.hours = atoi(rx_buffer);
-				break;
-			case MIN:
-				aux.minutes = atoi(rx_buffer);
-				break;
-			case SEC:
-				aux.seconds = atoi(rx_buffer);
-				break;
-			default:
-				break;
-			}
-		}
-		RTC_SetTime(aux);
+		RTC_SetTime(manage_input(DAY));
 	}
 	else
 	{
@@ -204,15 +182,14 @@ void print_time()
 
 void innit()
 {
-	alarm_time.seconds = 99;
 	RTC_Init();
 	UART_Init(BR9600);					// Configurar UART a 9600bps, 8 bits de datos, 1 bit de parada
 	UART_TX_Enable();						// Habilitar transmisor
 	UART_RX_Enable();						// Habilitar receptor
 	UART_RX_Interrupt_Enable(); // Habilitar interrupción de recepción
 	Timer1_init();
-	UART_SendString_IT("Bienvenidos\r\nComandos:\r\n- on / ON\r\n- off / OFF \r\n- set_time / SET_TIME\r\n - Dia \r\n - Mes \r\n - Anio \r\n - Hora \r\n - Min \r\n - Seg \r\n- set_alarm / SET_ALARM\r\n - Hora \r\n - Min \r\n - Seg \r\n");																									 // Envío el mensaje de Bienvenida
-	sei();																																																															 // habilitar interrupciones globales
+	UART_SendString_IT("Bienvenidos\r\nComandos:\r\n- on / ON\r\n- off / OFF \r\n- set_time / SET_TIME\r\n - Dia \r\n - Mes \r\n - Anio \r\n - Hora \r\n - Min \r\n - Seg \r\n- set_alarm / SET_ALARM\r\n - Hora \r\n - Min \r\n - Seg \r\n"); // Envío el mensaje de Bienvenida
+	sei();																																																																																																																		 // habilitar interrupciones globales
 }
 
 int main(void)
@@ -220,7 +197,6 @@ int main(void)
 	innit(); // Inicializar el sistema
 	while (1)
 	{
-		time = RTC_GetTime();
 		if (new_char_recv)
 		{
 			c_recv = UDR0;
@@ -240,9 +216,10 @@ int main(void)
 		if (time_flag)
 		{
 			time_flag = false;
+			time = RTC_GetTime();
 			if (alarm)
 				manage_alarm(); // Manejar la alarma
-			else if(powered)
+			else if (powered)
 				print_time(); // Imprimir la hora actual
 			if (!alarm && compare(time, alarm_time))
 			{
