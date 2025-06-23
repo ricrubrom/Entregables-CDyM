@@ -12,7 +12,6 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <util/delay.h>
 // Tipo de dato booleano
 #include "main.h"
 

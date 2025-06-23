@@ -197,7 +197,6 @@ void manage_alarm()
 
 void print_time()
 {
-	time = RTC_GetTime();
 	char *str[BUFFER_SIZE];
 	sprintf((char *)str, "FECHA: %02d/%02d/%02d HORA:%02d:%02d:%02d", time.day, time.month, time.year, time.hours, time.minutes, time.seconds);
 	UART_SendString_IT(str);
@@ -205,6 +204,7 @@ void print_time()
 
 void innit()
 {
+	alarm_time.seconds = 99;
 	RTC_Init();
 	UART_Init(BR9600);					// Configurar UART a 9600bps, 8 bits de datos, 1 bit de parada
 	UART_TX_Enable();						// Habilitar transmisor
@@ -220,6 +220,7 @@ int main(void)
 	innit(); // Inicializar el sistema
 	while (1)
 	{
+		time = RTC_GetTime();
 		if (new_char_recv)
 		{
 			c_recv = UDR0;
@@ -236,12 +237,12 @@ int main(void)
 			new_char_sent = false; // Reiniciar el indicador
 			manage_tx_buffer();		 // Manejar el buffer de transmisión
 		}
-		if (powered && time_flag)
+		if (time_flag)
 		{
 			time_flag = false;
 			if (alarm)
 				manage_alarm(); // Manejar la alarma
-			else
+			else if(powered)
 				print_time(); // Imprimir la hora actual
 			if (!alarm && compare(time, alarm_time))
 			{
