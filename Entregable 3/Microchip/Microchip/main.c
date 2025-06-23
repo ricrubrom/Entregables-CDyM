@@ -114,6 +114,7 @@ void manage_new_string()
 	else if (strcmp(rx_buffer, "set_alarm") == 0 || strcmp(rx_buffer, "SET_ALARM") == 0)
 	{
 		alarm_time = manage_input(HOUR);
+	}
 	else if (strcmp(rx_buffer, "set_time") == 0 || strcmp(rx_buffer, "SET_TIME") == 0)
 	{
 		RTC_SetTime(manage_input(DAY));
@@ -175,7 +176,7 @@ void print_time()
 	UART_SendString_IT(str);
 }
 
-void innit()
+void init()
 {
 	RTC_Init();
 	UART_Init(BR9600);					// Configurar UART a 9600bps, 8 bits de datos, 1 bit de parada
@@ -189,7 +190,7 @@ void innit()
 
 int main(void)
 {
-	innit(); // Inicializar el sistema
+	init(); // Inicializar el sistema
 	while (1)
 	{
 		if (new_char_recv)
