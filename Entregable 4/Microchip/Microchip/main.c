@@ -179,12 +179,6 @@ int main(void)
 		{
 			nueva_cadena = false; // Reiniciar el indicador
 			manage_new_string();// Manejar la nueva cadena recibida
-			uint8_t adc = ADC_get_value(); // brillo entre 0–255
-
-			OCR1A = apply_brightness(b, adc); // azul
-    		OCR1B = apply_brightness(g, adc); // verde
-    		pwm_rojo = apply_brightness(r, adc); // rojo por software
-
 			UART_SendString_IT("Color actualizado.");
 		}
 		if (new_char_sent)
@@ -193,5 +187,10 @@ int main(void)
 			manage_tx_buffer();		 // Manejar el buffer de transmisión
 		}
 		
+		uint8_t adc = ADC_get_value(); // brillo entre 0–255
+		
+		OCR1A = apply_brightness(b, adc); // azul
+		OCR1B = apply_brightness(g, adc); // verde
+		pwm_rojo = apply_brightness(r, adc); // rojo por software
 	}
 }
