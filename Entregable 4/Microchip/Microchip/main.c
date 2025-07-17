@@ -66,53 +66,58 @@ void manage_input()
 
 void manage_new_string()
 {
-	UART_SendString_IT("entra");
-	r = 255;
-	g = 255;
-	b = 255;
 	if (strcmp(rx_buffer, "1") == 0)
 	{
-		UART_SendString_IT("luz roja");
+		UART_SendString_IT("Color actualizado.");
 		r=0;
+		g=255;
+		b=255;
 	}
 	else if (strcmp(rx_buffer, "2") == 0)
 	{
-		UART_SendString_IT("luz verde");
+		UART_SendString_IT("Color actualizado.");
+		r=255;
 		g=0;
+		b=255;
 	}
 	else if (strcmp(rx_buffer, "3") == 0)
 	{
-		UART_SendString_IT("luz azul");
+		UART_SendString_IT("Color actualizado.");
+		r=255;
+		g=255;
 		b=0;
 	}
 	else if (strcmp(rx_buffer, "4") == 0)
 	{
-		UART_SendString_IT("luz cian");
+		UART_SendString_IT("Color actualizado.");
+		r=255;
 		g=0;
 		b=0;
 	}
 	else if (strcmp(rx_buffer, "5") == 0)
 	{
-		UART_SendString_IT("luz amarilla");
+		UART_SendString_IT("Color actualizado.");
 		r=0;
 		g=0;
+		b=255;
 	}
 	else if (strcmp(rx_buffer, "6") == 0)
 	{
-		UART_SendString_IT("luz magenta");
+		UART_SendString_IT("Color actualizado.");
 		r=0;
+		g=255;
 		b=0;
 	}
 	else if (strcmp(rx_buffer, "7") == 0)
 	{
-		UART_SendString_IT("luz blanca");
+		UART_SendString_IT("Color actualizado.");
 		r=0;
 		g=0;
 		b=0;
 	}
 	else if (strcmp(rx_buffer, "8") == 0)
 	{
-		UART_SendString_IT("luz negra");
+		UART_SendString_IT("Color actualizado.");
 		r=255;
 		g=255;
 		b=255;
@@ -179,7 +184,6 @@ int main(void)
 		{
 			nueva_cadena = false; // Reiniciar el indicador
 			manage_new_string();// Manejar la nueva cadena recibida
-			UART_SendString_IT("Color actualizado.");
 		}
 		if (new_char_sent)
 		{
