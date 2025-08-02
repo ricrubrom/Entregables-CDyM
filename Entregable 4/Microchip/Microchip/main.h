@@ -11,6 +11,11 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <string.h>
+#include "UART_utils.h"
+#include "Timer1_utils.h"
+#include "Timer0_utils.h"
+#include "ADC_utils.h"
+
 #define BR9600 (0x67)
 
 typedef enum
