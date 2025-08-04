@@ -1,8 +1,8 @@
 #include "main.h"
-// #include "UART_utils.h"
-// #include "Timer1_utils.h"
-// #include "Timer0_utils.h"
-// #include "ADC_utils.h"
+#include "UART_utils.h"
+#include "Timer1_utils.h"
+#include "Timer0_utils.h"
+#include "ADC_utils.h"
 
 // RX (Recepción)
 char rx_buffer[BUFFER_SIZE];
